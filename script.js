@@ -33,4 +33,5 @@ if there is more, a new page will be created.
     -page with characters(main) will have a shared global variable with page containing more
         details for the character
     -arrow to take back to main (if global = 1, you are on char, if global = 0, you are in main)
+hmm
 */
