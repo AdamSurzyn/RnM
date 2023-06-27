@@ -1,0 +1,27 @@
+{
+  "name": "quickeslint",
+  "version": "1.0.0",
+  "description": "notsureifishoulddothiseverytime",
+  "main": "script.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AdamSurzyn/R-M.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AdamSurzyn/R-M/issues"
+  },
+  "homepage": "https://github.com/AdamSurzyn/R-M#readme",
+  "devDependencies": {
+    "eslint-config-prettier": "^8.8.0",
+    "eslint-config-standard": "^17.1.0",
+    "eslint-plugin-import": "^2.27.5",
+    "eslint-plugin-n": "^16.0.1",
+    "eslint-plugin-promise": "^6.1.1",
+    "prettier": "2.8.8"
+  }
+}
