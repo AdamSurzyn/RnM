@@ -3,3 +3,9 @@
   grid-template-columns: repeat(2, 1fr);
   grid-template-rows: repeat(auto-fit, minmax(150px, 1fr));
 }
+
+.pagesContainer {
+  min-height: 50px;
+  min-width: 50px;
+  border: solid;
+}
