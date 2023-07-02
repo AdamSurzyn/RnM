@@ -9,8 +9,8 @@ class rnmChars {
     this.list = document.querySelector(".list-of-chars");
   }
 
-  async getRnmData() {
-    const response = await fetch(this.url);
+  async getRnmData(url) {
+    const response = await fetch(url);
     const rnmJson = await response.json();
     return rnmJson;
   }
@@ -19,8 +19,8 @@ class rnmChars {
     this.list.replaceChildren();
   }
 
-  async addContentToPage() {
-    let newData = await this.getRnmData();
+  async addContentToPage(url) {
+    let newData = await this.getRnmData(url);
     newData.results.map((char) => {
       let newElement = document.createElement("li");
       newElement.innerHTML = char.name.toString();
@@ -28,48 +28,44 @@ class rnmChars {
     });
   }
 
-  switchPage(el) {
-    let fromPage = el.srcElement.innerText;
-    console.log(el.srcElement.innerText);
+  switchPageLeft(el) {
+    let newUrl = this.url;
     if (currentPage === 1) {
-      this.url = this.url + `?page=${currentPage}`;
+      newUrl = this.url;
+      if (newUrl.split("/").length === 6) {
+        newUrl = this.url.split("/").slice(0, -1).join("/");
+      }
     } else if (currentPage > 1) {
-      this.url = this.url.replace(`?page=${currentPage}`, `?page=${fromPage}`);
-      currentPage = fromPage;
+      newUrl = this.url.split("/").slice(0, -1).join("/");
+      newUrl = newUrl + `/?page=${currentPage - 1}`;
+      currentPage--;
     }
     this.clearContent();
-    this.addContentToPage();
-    this.addPageElement();
-    currentPage++;
+    this.addContentToPage(newUrl);
+    this.url = newUrl;
+    this.updateCounter();
+  }
+
+  switchPageRight(el) {
+    let newUrl = this.url;
+    if (currentPage === 1) {
+      newUrl = this.url + `/?page=${currentPage + 1}`;
+      currentPage++;
+    } else if (currentPage > 1) {
+      newUrl = this.url.split("/").slice(0, -1).join("/");
+      newUrl = newUrl + `/?page=${currentPage + 1}`;
+      currentPage++;
+    }
+    this.clearContent();
+    this.addContentToPage(newUrl);
+    this.url = newUrl;
+    this.updateCounter();
   }
 
   charSearch() {}
-
-  addPageElement() {
-    if (currentPage === 1) {
-      const addedContainer = document.createElement("div");
-      document.body.appendChild(addedContainer);
-      addedContainer.setAttribute("class", "pagesContainer");
-      const addedPage = document.createElement("div");
-      addedContainer.appendChild(addedPage);
-      addedPage.setAttribute("id", `page ${currentPage}`);
-      addedPage.innerHTML = currentPage.toString();
-      addedPage.addEventListener("click", (e) => {
-        this.switchPage(e);
-      });
-      addedContainer.appendChild(addedPage);
-    } else if (currentPage > 1) {
-      console.log("added");
-      const addedContainer = document.querySelector(".pagesConatainer");
-      const addedPage = addedContainer.createElement("div");
-      addedContainer.appendChild(addedPage);
-      addedPage.setAttribute("id", `page ${currentPage}`);
-      addedPage.innerHTML = currentPage.toString();
-      addedContainer.appendChild(addedPage);
-      addedPage.addEventListener("click", (e) => {
-        this.switchPage(e);
-      });
-    }
+  updateCounter() {
+    const counter = document.querySelector(".counter");
+    counter.innerText = currentPage;
   }
 
   addPagesContainer() {
@@ -89,15 +85,18 @@ class rnmChars {
     counter.innerHTML = currentPage;
     addedContainer.appendChild(counter);
 
-    addedPage.addEventListener("click", (e) => {
-      this.switchPage(e);
+    arrowLeft.addEventListener("click", (e) => {
+      this.switchPageLeft(e);
+    });
+    arrowRight.addEventListener("click", (e) => {
+      this.switchPageRight(e);
     });
   }
 }
 
 let chars = new rnmChars(rnmUrlCharacters);
-chars.addContentToPage();
-chars.addPageElement();
+chars.addContentToPage(chars.url);
+chars.addPagesContainer();
 /*To Do:
 1)Make a class for each character in the response
     -new Char will be created for each entry in the "results"
