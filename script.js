@@ -28,6 +28,13 @@ class rnmChars {
     });
   }
 
+  addElement(type, text, elClass) {
+    const newElement = document.createElement(type);
+    newElement.setAttribute("class", elClass);
+    newElement.innerText = text;
+    return newElement;
+  }
+
   switchPageLeft(el) {
     let newUrl = this.url;
     if (currentPage === 1) {
@@ -60,30 +67,37 @@ class rnmChars {
     this.addContentToPage(newUrl);
     this.url = newUrl;
     this.updateCounter();
+
+    //Left and right arrows shouldn't be different functions, just be defined in ifs.
   }
 
-  charSearch() {}
+  charSearch() {
+    const form = this.createElement(
+      "label",
+      "Search a character!",
+      "char-search"
+    );
+    const input = this.createElement("input", "", "char-search-input");
+
+    form;
+  }
   updateCounter() {
     const counter = document.querySelector(".counter");
     counter.innerText = currentPage;
   }
 
   addPagesContainer() {
-    const addedContainer = document.createElement("div");
+    const addedContainer = this.addElement("div", "", "pagesContainer");
     document.body.appendChild(addedContainer);
-    addedContainer.setAttribute("class", "pagesContainer");
-    const arrowLeft = document.createElement("div");
-    arrowLeft.setAttribute("class", "arrowL");
-    arrowLeft.innerText = "<";
+
+    const arrowLeft = this.addElement("div", "<", "arrowL");
     addedContainer.appendChild(arrowLeft);
-    const arrowRight = document.createElement("div");
-    arrowRight.setAttribute("class", "arrowR");
-    arrowRight.innerText = ">";
-    addedContainer.appendChild(arrowRight);
-    const counter = document.createElement("div");
-    counter.setAttribute("class", "counter");
-    counter.innerHTML = currentPage;
+
+    const counter = this.addElement("div", currentPage, "counter");
     addedContainer.appendChild(counter);
+
+    const arrowRight = this.addElement("div", ">", "arrowR");
+    addedContainer.appendChild(arrowRight);
 
     arrowLeft.addEventListener("click", (e) => {
       this.switchPageLeft(e);
