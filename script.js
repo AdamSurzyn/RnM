@@ -28,6 +28,8 @@ class rnmChars {
     });
   }
 
+  //Change this function to get an array of chars io the array.
+
   addElement(type, text, elClass) {
     const newElement = document.createElement(type);
     newElement.setAttribute("class", elClass);
@@ -67,20 +69,50 @@ class rnmChars {
     this.addContentToPage(newUrl);
     this.url = newUrl;
     this.updateCounter();
-
+    //There is a next and previous name of the page in the object!!!
     //Left and right arrows shouldn't be different functions, just be defined in ifs.
   }
 
-  charSearch() {
-    const form = this.createElement(
-      "label",
-      "Search a character!",
-      "char-search"
-    );
-    const input = this.createElement("input", "", "char-search-input");
-
-    form;
+  charSearchForm() {
+    const input = this.addElement("input", "", "char-search-input");
+    input.setAttribute("type", "text");
+    input.setAttribute("name", "charName");
+    input.setAttribute("placeholder", "Character name");
+    document.body.appendChild(input);
+    input.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        let searchKey = e.srcElement.value;
+        this.searchFuntion(searchKey);
+      }
+    });
   }
+
+  async searchFuntion(key) {
+    let firstUrl = this.url;
+    let data = await this.getRnmData(firstUrl);
+    let nextUrl = "";
+    let matchedChars = [];
+    console.log(data.info.pages);
+    for (let i = 1; i < data.info.pages; i++) {
+      data.results.map((char) => {
+        if (char.name.includes(key)) {
+          matchedChars.push(char.name);
+        }
+      });
+      nextUrl = data.info.next;
+      data = await this.getRnmData(nextUrl);
+    }
+    console.log(matchedChars);
+    this.clearContent();
+    matchedChars.map((searchedChars) => {
+      let newElement = document.createElement("li");
+      newElement.innerHTML = searchedChars.toString();
+      this.list.appendChild(newElement);
+    });
+    firstUrl = this.url;
+  }
+
   updateCounter() {
     const counter = document.querySelector(".counter");
     counter.innerText = currentPage;
@@ -111,6 +143,7 @@ class rnmChars {
 let chars = new rnmChars(rnmUrlCharacters);
 chars.addContentToPage(chars.url);
 chars.addPagesContainer();
+chars.charSearchForm();
 /*To Do:
 1)Make a class for each character in the response
     -new Char will be created for each entry in the "results"
