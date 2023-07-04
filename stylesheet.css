@@ -1,7 +1,7 @@
 .list-of-chars {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  grid-template-rows: repeat(auto-fit, minmax(20px, 1fr));
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(auto-fit, minmax(150px, 1fr));
   list-style-type: none;
   min-height: 320px;
 }

@@ -1,12 +1,16 @@
 let currentPage = 1;
 const rnmUrlCharacters = "https://rickandmortyapi.com/api/character";
 //Change the visible page depending on the global page variable -> make a css class with display:hidden
-
 class rnmChars {
   constructor(url) {
     this.url = url;
     //Replace this.list with a variable, and pass it as an argument
     this.list = document.querySelector(".list-of-chars");
+    this.loadedSites = [];
+    //When a side being loaded or searched is in the array, look for characters in cache
+    //Add number of a page to each cached page
+    //Add characters in arrays of 20(so each page of chars)
+    this.cache = [];
   }
 
   async getRnmData(url) {
@@ -22,9 +26,8 @@ class rnmChars {
   async addContentToPage(url) {
     let newData = await this.getRnmData(url);
     newData.results.map((char) => {
-      let newElement = document.createElement("li");
-      newElement.innerHTML = char.name.toString();
-      this.list.appendChild(newElement);
+      this.cache.push(char);
+      this.addCharInfo(char, this.list);
     });
   }
 
@@ -97,20 +100,99 @@ class rnmChars {
     for (let i = 1; i < data.info.pages; i++) {
       data.results.map((char) => {
         if (char.name.includes(key)) {
-          matchedChars.push(char.name);
+          matchedChars.push(char);
         }
       });
       nextUrl = data.info.next;
       data = await this.getRnmData(nextUrl);
     }
-    console.log(matchedChars);
     this.clearContent();
-    matchedChars.map((searchedChars) => {
-      let newElement = document.createElement("li");
-      newElement.innerHTML = searchedChars.toString();
-      this.list.appendChild(newElement);
+    matchedChars.map((searchedChar) => {
+      console.log(searchedChar);
+      this.addCharInfo(searchedChar, this.list);
     });
     firstUrl = this.url;
+
+    // Second search doesn't work???
+    // How to make it so all of chars are being loaded passively
+    // Can also filter chars on URL. Read the documentation first next time!
+  }
+
+  addCharInfo(char, container) {
+    let newElement = document.createElement("div");
+    newElement.classList.add("char-card");
+    container.appendChild(newElement);
+    console.log(char);
+    let charHiddenInfo = {
+      episodes: char.episode,
+    };
+    let charCardInfo = {
+      imageUrl: char.image,
+      name: char.name,
+      species: char.species,
+    };
+    let infoElement;
+    const objectValues = Object.entries(charCardInfo);
+    objectValues.map(([key, value]) => {
+      if (key === "imageUrl") {
+        infoElement = document.createElement("img");
+        infoElement.setAttribute("src", value);
+        infoElement.setAttribute("alt", char.name);
+      } else {
+        infoElement = document.createElement("div");
+        infoElement.innerHTML = value;
+      }
+
+      newElement.appendChild(infoElement);
+    });
+
+    let joinedCharInfo = {
+      ...charHiddenInfo,
+      ...charCardInfo,
+    };
+
+    newElement.addEventListener("click", () => {
+      this.openCharTab(joinedCharInfo);
+    });
+  }
+
+  openCharTab(charInfo) {
+    const objectValues = Object.entries(charInfo);
+    let newElement = document.createElement("div");
+    newElement.classList.add("char-card-window");
+    let infoElement;
+    let baseUrl = "https://rickandmortyapi.com/api/episode/";
+    let episodes;
+    let infoElementContainer;
+    let episodeInfo;
+    objectValues.map(async ([key, value]) => {
+      if (key === "imageUrl") {
+        infoElement = document.createElement("img");
+        infoElement.setAttribute("src", value);
+        infoElement.setAttribute("alt", charInfo.name);
+      } else if (key === "episodes") {
+        infoElementContainer = document.createElement("ul");
+        infoElementContainer.classList.add("episodes-container");
+        value.map((episode, index) => {
+          baseUrl + index + 1 + ",";
+        });
+        episodes = await this.getRnmData(baseUrl);
+        episodes.results.map((episodeObj) => {
+          episodeInfo = document.createElement("li");
+          episodeInfo.innerHTML = `Episode ID ${episodeObj.id}, Episode Name:${episodeObj.name}`;
+          infoElementContainer.appendChild(episodeInfo);
+        });
+      } else {
+        infoElement = document.createElement("div");
+        infoElement.innerHTML = value;
+      }
+      newElement.appendChild(infoElement);
+      newElement.appendChild(infoElementContainer);
+    });
+    const newWindow = window.open("", "_blank");
+    //Can I use _blank without url? Can't seem to get it to work
+    console.log(newWindow);
+    newWindow.document.body.appendChild(newElement);
   }
 
   updateCounter() {
@@ -146,19 +228,8 @@ chars.addPagesContainer();
 chars.charSearchForm();
 /*To Do:
 1)Make a class for each character in the response
-    -new Char will be created for each entry in the "results"
-    -adding content method
-    -highlight method
-    -change to characters page method
-
-    How to make properties of each char so it makes sense?
-
-
-2)Make pagination mechanism so only 6 chars can be displayed on the screen,
-if there is more, a new page will be created.
-    -each page has its own id -> switching mechanism with seperate css class
-    -page with characters(main) will have a shared global variable with page containing more
-        details for the character
-    -arrow to take back to main (if global = 1, you are on char, if global = 0, you are in main)
-hmm
+  -class will be created when an individual character is chosen
+  -make it so data for each character is cached when page is loaded or searched
+  -arrow to take back to main (if global = 1, you are on char, if global = 0, you are in main)
+  hmm
 */
